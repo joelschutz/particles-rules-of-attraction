@@ -12,6 +12,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 
 	"github.com/fglo/particles-rules-of-attraction/pkg/particlelifesim/board"
+	"github.com/fglo/particles-rules-of-attraction/pkg/particlelifesim/simulation"
 )
 
 func init() {
@@ -26,6 +27,7 @@ var (
 type Game struct {
 	// input      *Input
 	board      *board.Board
+	sim        *simulation.SimulationEngine
 	boardImage *ebiten.Image
 
 	screenWidth       int
@@ -46,7 +48,8 @@ func New() *Game {
 	g.numberOfParticles = numberOfParticles
 
 	// g.input =  NewInput()
-	g.board = board.New(g.screenWidth, g.screenHeight, 6400, 100, false)
+	g.sim = simulation.NewSimulationEngine(.04, .05, .0002, 0.004, true)
+	g.board = board.New(g.screenWidth, g.screenHeight, g.sim)
 	g.board.Setup(g.numberOfParticles)
 
 	ebiten.SetWindowSize(g.screenWidth*2, g.screenHeight*2)
