@@ -2,6 +2,8 @@ package particle
 
 import (
 	"image/color"
+	"math"
+	"math/rand"
 )
 
 type ParticleGroup struct {
@@ -10,11 +12,31 @@ type ParticleGroup struct {
 	Particles []*Particle
 }
 
-func NewParticleGroup(name string, color color.Color) *ParticleGroup {
-	pl := new(ParticleGroup)
-	pl.Name = name
-	pl.Color = color
-	pl.Particles = make([]*Particle, 0)
+func NewParticleGroup(name string, numberOfParticles int, color color.Color, initialPositions []Particle) *ParticleGroup {
+	pg := new(ParticleGroup)
+	pg.Name = name
+	pg.Color = color
+	pg.Particles = placeParticles(numberOfParticles, initialPositions)
 
-	return pl
+	return pg
+}
+
+func placeParticles(n int, p []Particle) (ptcs []*Particle) {
+	nClusters := len(p)
+	if nClusters <= 0 {
+		// Place particles randonly if no clusters are passed
+		for i := 0; i < n; i++ {
+			p := NewParticle(rand.Float64(), rand.Float64())
+			ptcs = append(ptcs, p)
+		}
+	} else {
+		// Place particles proportionally in each clusters
+		for i := 0; i < n; i++ {
+			tIndex := int(math.Mod(float64(i), float64(nClusters)))
+			tParticle := p[tIndex]
+			p := NewParticle(tParticle.GetX(), tParticle.GetY())
+			ptcs = append(ptcs, p)
+		}
+	}
+	return ptcs
 }
