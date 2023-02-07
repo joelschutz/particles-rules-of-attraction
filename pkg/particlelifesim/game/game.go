@@ -7,10 +7,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/fglo/particles-rules-of-attraction/pkg/particlelifesim/board"
 	ebiten "github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+
+	"github.com/fglo/particles-rules-of-attraction/pkg/particlelifesim/board"
 )
 
 func init() {
@@ -45,7 +46,7 @@ func New() *Game {
 	g.numberOfParticles = numberOfParticles
 
 	// g.input =  NewInput()
-	g.board = board.New(g.screenWidth, g.screenHeight)
+	g.board = board.New(g.screenWidth, g.screenHeight, 6400, 100, false)
 	g.board.Setup(g.numberOfParticles)
 
 	ebiten.SetWindowSize(g.screenWidth*2, g.screenHeight*2)
@@ -60,6 +61,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 }
 
 func (g *Game) restart() {
+	g.board.Clear()
 	g.board.Setup(g.numberOfParticles)
 	g.boardImage.Clear()
 }
