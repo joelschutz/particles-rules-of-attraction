@@ -1,22 +1,24 @@
 package rule
 
-import "math/rand"
+import (
+	"math/rand"
 
-type Rule map[string]float64
+	"github.com/fglo/particles-rules-of-attraction/pkg/particlelifesim/particle"
+)
+
+type Rule float64
 
 // GenerateRandomRules generates random rules for every pair of particles
-func GenerateRandomRules(names []string) map[string]Rule {
-	rules := make(map[string]Rule)
-
-	for _, name := range names {
-		rules[name] = make(Rule)
+func GenerateRandomRules(pgs []*particle.ParticleGroup) [][]Rule {
+	rules := make([][]Rule, len(pgs))
+	for i := range rules {
+		rules[i] = make([]Rule, len(pgs))
 	}
 
-	for _, name := range names {
-		rules[name] = make(Rule)
-		for _, name2 := range names {
-			rules[name][name2] = rand.Float64()*2 - 1
-			rules[name2][name] = rules[name][name2]
+	for IndexG0 := range pgs {
+		for IndexG1 := range pgs {
+			rules[IndexG0][IndexG1] = Rule(rand.Float64()*2 - 1)
+			rules[IndexG1][IndexG0] = rules[IndexG0][IndexG1]
 		}
 	}
 

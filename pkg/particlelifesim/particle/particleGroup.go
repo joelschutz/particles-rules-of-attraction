@@ -4,14 +4,14 @@ import (
 	"image/color"
 )
 
-type ParticleList struct {
+type ParticleGroup struct {
 	Name      string
 	Color     color.Color
 	Particles []*Particle
 }
 
-func NewList(name string, color color.Color) *ParticleList {
-	pl := new(ParticleList)
+func NewParticleGroup(name string, color color.Color) *ParticleGroup {
+	pl := new(ParticleGroup)
 	pl.Name = name
 	pl.Color = color
 	pl.Particles = make([]*Particle, 0)
