@@ -7,9 +7,10 @@ import (
 )
 
 type ParticleGroup struct {
-	Name      string
-	Color     color.Color
-	Particles []*Particle
+	Name             string
+	Color            color.Color
+	Particles        []*Particle
+	initialPositions []Particle
 }
 
 func NewParticleGroup(name string, numberOfParticles int, color color.Color, initialPositions []Particle) *ParticleGroup {
@@ -17,8 +18,13 @@ func NewParticleGroup(name string, numberOfParticles int, color color.Color, ini
 	pg.Name = name
 	pg.Color = color
 	pg.Particles = placeParticles(numberOfParticles, initialPositions)
+	pg.initialPositions = initialPositions
 
 	return pg
+}
+
+func (pg *ParticleGroup) ResetPosition() {
+	pg.Particles = placeParticles(len(pg.Particles), pg.initialPositions)
 }
 
 func placeParticles(n int, p []Particle) (ptcs []*Particle) {

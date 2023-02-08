@@ -12,6 +12,8 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 
 	"github.com/fglo/particles-rules-of-attraction/pkg/particlelifesim/board"
+	clr "github.com/fglo/particles-rules-of-attraction/pkg/particlelifesim/color"
+	"github.com/fglo/particles-rules-of-attraction/pkg/particlelifesim/particle"
 	"github.com/fglo/particles-rules-of-attraction/pkg/particlelifesim/simulation"
 )
 
@@ -47,10 +49,19 @@ func New() *Game {
 	g.screenHeight = screenHeight
 	g.numberOfParticles = numberOfParticles
 
-	// g.input =  NewInput()
-	g.sim = simulation.NewSimulationEngine(.04, .05, .0002, 0.004, true)
+	pgs := []*particle.ParticleGroup{
+		particle.NewParticleGroup("red", g.numberOfParticles, clr.RED, particle.GRID_2),
+		particle.NewParticleGroup("green", g.numberOfParticles, clr.GREEN, particle.GRID_2),
+		particle.NewParticleGroup("blue", g.numberOfParticles, clr.BLUE, particle.GRID_2),
+		particle.NewParticleGroup("yellow", g.numberOfParticles, clr.YELLOW, particle.GRID_2),
+		particle.NewParticleGroup("white", g.numberOfParticles, clr.WHITE, particle.GRID_2),
+		particle.NewParticleGroup("teal", g.numberOfParticles, clr.TEAL, particle.GRID_2),
+	}
+	rules := simulation.GenerateRandomAsymmetricRules(pgs)
+
+	g.sim = simulation.NewSimulationEngine(.04, .05, .0002, 0.004, true, rules, pgs)
 	g.board = board.New(g.screenWidth, g.screenHeight, g.sim)
-	g.board.Setup(g.numberOfParticles)
+	g.board.Setup()
 
 	ebiten.SetWindowSize(g.screenWidth*2, g.screenHeight*2)
 	ebiten.SetWindowTitle("Particles' Rules of Attraction")
@@ -64,9 +75,9 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 }
 
 func (g *Game) restart() {
-	g.board.Clear()
-	g.board.Setup(g.numberOfParticles)
 	g.boardImage.Clear()
+	g.board.Reset()
+	g.board.Setup()
 }
 
 // Update updates the current game state.
@@ -74,7 +85,6 @@ func (g *Game) Update() error {
 	g.checkRestartButton()
 	g.checkPauseButton()
 	g.checkForwardButton()
-	// g.input.Update()
 	if err := g.board.Update(); err != nil {
 		return err
 	}

@@ -30,9 +30,14 @@ func New(w, h int, se *simulation.SimulationEngine) *Board {
 }
 
 // Setup prepares board
-func (b *Board) Setup(numberOfParticles int) {
-	b.se.Setup(numberOfParticles)
+func (b *Board) Setup() {
+	b.se.Setup()
 	b.paused = false
+}
+
+// Reset places particles back on initial positions
+func (b *Board) Reset() {
+	b.se.Reset()
 }
 
 // TogglePause toggles board pause

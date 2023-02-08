@@ -2,12 +2,10 @@ package simulation
 
 import (
 	"fmt"
-	image "image/color"
 	"math"
 	"math/rand"
 	"sync"
 
-	"github.com/fglo/particles-rules-of-attraction/pkg/particlelifesim/color"
 	"github.com/fglo/particles-rules-of-attraction/pkg/particlelifesim/particle"
 )
 
@@ -19,7 +17,11 @@ type SimulationEngine struct {
 }
 
 // New is a Board constructor
-func NewSimulationEngine(maxEffectDistance, terminalVelocity, conservationOfMomentum, particleRepulsionFactor float64, wrapped bool) *SimulationEngine {
+func NewSimulationEngine(
+	maxEffectDistance, terminalVelocity, conservationOfMomentum, particleRepulsionFactor float64,
+	wrapped bool,
+	rules [][]Rule,
+	particleGroups []*particle.ParticleGroup) *SimulationEngine {
 	se := new(SimulationEngine)
 
 	se.particlesGroups = make([]*particle.ParticleGroup, 0)
@@ -28,25 +30,14 @@ func NewSimulationEngine(maxEffectDistance, terminalVelocity, conservationOfMome
 	se.particleRepulsionFactor = particleRepulsionFactor
 	se.conservationOfMomentum = conservationOfMomentum
 	se.wrapped = wrapped
+	se.rules = rules
+	se.particlesGroups = particleGroups
 
 	return se
 }
 
-func (se *SimulationEngine) createParticles(name string, numberOfParticles int, color image.Color) {
-	pg := particle.NewParticleGroup(name, numberOfParticles, color, []particle.Particle{})
-	se.particlesGroups = append(se.particlesGroups, pg)
-}
-
 // Setup prepares SimulationEngine
-func (se *SimulationEngine) Setup(numberOfParticles int) {
-	se.createParticles("red", numberOfParticles, color.RED)
-	se.createParticles("green", numberOfParticles, color.GREEN)
-	se.createParticles("blue", numberOfParticles, color.BLUE)
-	se.createParticles("yellow", numberOfParticles, color.YELLOW)
-	se.createParticles("white", numberOfParticles, color.WHITE)
-	se.createParticles("teal", numberOfParticles, color.TEAL)
-
-	se.rules = GenerateRandomAsymmetricRules(se.particlesGroups)
+func (se *SimulationEngine) Setup() {
 	for pgIndex := range se.particlesGroups {
 		se.applyRule(pgIndex)
 	}
@@ -57,6 +48,13 @@ func (se *SimulationEngine) Clear() error {
 	se.particlesGroups = nil
 	se.rules = nil
 	return nil
+}
+
+// Reset places particles back on initial positions
+func (se *SimulationEngine) Reset() {
+	for _, pg := range se.particlesGroups {
+		pg.ResetPosition()
+	}
 }
 
 func (se *SimulationEngine) NextFrame() *[]*particle.ParticleGroup {
