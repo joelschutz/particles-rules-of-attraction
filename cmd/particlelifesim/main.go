@@ -3,8 +3,9 @@ package main
 import (
 	"log"
 
+	"github.com/hajimehoshi/ebiten/v2"
+
 	"github.com/fglo/particles-rules-of-attraction/pkg/particlelifesim/game"
-	ebiten "github.com/hajimehoshi/ebiten/v2"
 )
 
 func run() {

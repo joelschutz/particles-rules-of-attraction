@@ -31,6 +31,7 @@ type Game struct {
 	board      *board.Board
 	sim        *simulation.SimulationEngine
 	boardImage *ebiten.Image
+	rulesImage *ebiten.Image
 
 	screenWidth       int
 	screenHeight      int
@@ -58,8 +59,9 @@ func New() *Game {
 		particle.NewParticleGroup("teal", g.numberOfParticles, clr.TEAL, particle.GRID_2),
 	}
 	rules := simulation.GenerateRandomAsymmetricRules(pgs)
+	simulation.SaveRulesAsCsv(rules, time.Now().Format("out/2006-01-02T15:04:05"))
 
-	g.sim = simulation.NewSimulationEngine(.04, .05, .0002, 0.004, true, rules, pgs)
+	g.sim = simulation.NewSimulationEngine(.04, .05, .00004, 0.0004, true, rules, pgs)
 	g.board = board.New(g.screenWidth, g.screenHeight, g.sim)
 	g.board.Setup()
 
@@ -139,16 +141,29 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		w, h := g.board.Size()
 		g.boardImage = ebiten.NewImage(w, h)
 	}
-
 	screen.Fill(color.RGBA{9, 32, 42, 100})
 	g.drawInstructions(screen)
 
-	g.board.Draw(g.boardImage)
+	if g.rulesImage == nil {
+		w, h := g.board.Size()
+		g.rulesImage = ebiten.NewImage(w/6, h/6)
+	}
+
+	g.board.Draw(g.boardImage, g.rulesImage)
+
 	op := &ebiten.DrawImageOptions{}
-	sw, sh := screen.Size()
-	bw, bh := g.boardImage.Size()
-	x := (sw - bw) / 2
-	y := (sh - bh) / 2
+	sw, sh := g.boardImage.Size()
+	bw, bh := g.rulesImage.Size()
+	x := (sw - bw)
+	y := (sh - bh)
+	op.GeoM.Translate(float64(x), float64(y))
+	g.boardImage.DrawImage(g.rulesImage, op)
+
+	op = &ebiten.DrawImageOptions{}
+	sw, sh = screen.Size()
+	bw, bh = g.boardImage.Size()
+	x = (sw - bw) / 2
+	y = (sh - bh) / 2
 	op.GeoM.Translate(float64(x), float64(y))
 	screen.DrawImage(g.boardImage, op)
 }

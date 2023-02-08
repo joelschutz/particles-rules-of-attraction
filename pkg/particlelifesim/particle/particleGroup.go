@@ -32,7 +32,7 @@ func placeParticles(n int, p []Particle) (ptcs []*Particle) {
 	if nClusters <= 0 {
 		// Place particles randonly if no clusters are passed
 		for i := 0; i < n; i++ {
-			p := NewParticle(rand.Float64(), rand.Float64())
+			p := NewParticle(rand.Float32(), rand.Float32())
 			ptcs = append(ptcs, p)
 		}
 	} else {

@@ -1,6 +1,8 @@
 package board
 
 import (
+	"fmt"
+
 	ebiten "github.com/hajimehoshi/ebiten/v2"
 
 	"github.com/fglo/particles-rules-of-attraction/pkg/particlelifesim/simulation"
@@ -66,8 +68,30 @@ func (b *Board) Size() (w, h int) {
 }
 
 // Draw draws board
-func (b *Board) Draw(boardImage *ebiten.Image) {
+func (b *Board) Draw(boardImage, rulesImage *ebiten.Image) {
 	b.drawParticles(boardImage)
+	b.drawRules(rulesImage)
+}
+
+func (b *Board) drawRules(rulesImage *ebiten.Image) {
+	matrix := ebiten.NewImage(b.se.RuleSize())
+	matrix.WritePixels(simulation.DrawRulesMatrix(*b.se.GetRules()))
+	mw, mh := matrix.Size()
+	img := ebiten.NewImage(mw+1, mh+1)
+	for i, v := range *b.se.GetParticleGroups() {
+		img.Set(i+1, 0, v.Color)
+		img.Set(0, i+1, v.Color)
+		fmt.Println("clr", v.Color)
+	}
+	op1 := &ebiten.DrawImageOptions{}
+	op1.GeoM.Translate(1, 1)
+	img.DrawImage(matrix, op1)
+
+	op := &ebiten.DrawImageOptions{}
+	sw, sh := rulesImage.Size()
+	bw, bh := img.Size()
+	op.GeoM.Scale(float64(sw/bw), float64(sh/bh))
+	rulesImage.DrawImage(img, op)
 }
 
 func (b *Board) drawParticles(boardImage *ebiten.Image) {
@@ -76,7 +100,7 @@ func (b *Board) drawParticles(boardImage *ebiten.Image) {
 		pgs := b.se.NextFrame()
 		for _, pg := range *pgs {
 			for _, p := range pg.Particles {
-				boardImage.Set(int(p.GetX()*float64(b.height)), int(p.GetY()*float64(b.height)), pg.Color)
+				boardImage.Set(int(p.GetX()*float32(b.height)), int(p.GetY()*float32(b.height)), pg.Color)
 			}
 		}
 	}
