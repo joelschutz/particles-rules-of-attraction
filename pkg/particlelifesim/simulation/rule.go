@@ -1,4 +1,4 @@
-package rule
+package simulation
 
 import (
 	"math/rand"
